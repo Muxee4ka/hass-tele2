@@ -3,9 +3,9 @@
   "name": "Tele2 (t2)",
   "codeowners": ["@Muxee4ka"],
   "config_flow": true,
-  "documentation": "https://github.com/Muxee4ka/tele2api",
+  "documentation": "https://github.com/Muxee4ka/hass-tele2",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/Muxee4ka/tele2api/issues",
+  "issue_tracker": "https://github.com/Muxee4ka/hass-tele2/issues",
   "requirements": ["tele2api @ git+https://github.com/Muxee4ka/tele2api@v3.0.0"],
   "version": "0.2.0"
 }
