@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Muxee4ka/hass-tele2/actions/workflows/tests.yml"><img src="https://github.com/Muxee4ka/hass-tele2/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
   <a href="https://github.com/hacs/integration"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS: Custom"></a>
   <a href="https://github.com/Muxee4ka/hass-tele2/releases"><img src="https://img.shields.io/github/v/release/Muxee4ka/hass-tele2?display_name=tag" alt="Release"></a>
   <img src="https://img.shields.io/badge/Home%20Assistant-2024.1%2B-41BDF5?logo=home-assistant&logoColor=white" alt="Home Assistant 2024.1+">
