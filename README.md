@@ -1,10 +1,43 @@
-# Tele2 (t2) — Home Assistant integration
+<p align="center">
+  <img src="custom_components/tele2/brand/logo.png" alt="Tele2 (t2)" height="80">
+</p>
 
-A config-entry-based Home Assistant custom integration for **t2 (Tele2 Russia)**
-subscribers. It shows your account and [t2 Маркет](https://t2.ru) marketplace
-data as sensors and exposes marketplace / SIM operations as services. It is
-backed by the [`tele2api`](https://github.com/Muxee4ka/tele2api) client and
-keeps the access token fresh in the background.
+<h1 align="center">Tele2 (t2) — Home Assistant integration</h1>
+
+<p align="center">
+  Account, marketplace and SIM control for <b>t2 (Tele2 Russia)</b> subscribers,
+  right inside Home Assistant.
+</p>
+
+<p align="center">
+  <a href="https://github.com/hacs/integration"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS: Custom"></a>
+  <a href="https://github.com/Muxee4ka/hass-tele2/releases"><img src="https://img.shields.io/github/v/release/Muxee4ka/hass-tele2?display_name=tag" alt="Release"></a>
+  <img src="https://img.shields.io/badge/Home%20Assistant-2024.1%2B-41BDF5?logo=home-assistant&logoColor=white" alt="Home Assistant 2024.1+">
+  <img src="https://img.shields.io/maintenance/yes/2026.svg" alt="Maintained">
+</p>
+
+A config-entry-based custom integration that shows your t2 account and
+[t2 Маркет](https://t2.ru) marketplace data as sensors and exposes
+marketplace / SIM operations as services and switches. It is backed by the
+[`tele2api`](https://github.com/Muxee4ka/tele2api) client and keeps the access
+token fresh in the background.
+
+---
+
+## Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Setup](#setup)
+- [Options](#options)
+- [Sensors](#sensors)
+- [Switches](#switches)
+- [Services](#services)
+- [Linked numbers (multi-number)](#linked-numbers-multi-number)
+- [Blueprints](#blueprints)
+- [Troubleshooting](#troubleshooting)
+- [Disclaimer](#disclaimer)
+- [Credits](#credits)
 
 ## Features
 
@@ -29,20 +62,27 @@ keeps the access token fresh in the background.
 
 ## Installation
 
-### HACS (custom repository)
+### HACS (recommended)
 
-1. In HACS → **Integrations** → ⋮ → **Custom repositories**.
-2. Add `https://github.com/Muxee4ka/tele2api` as an **Integration**.
-3. Install **Tele2 (t2)** and restart Home Assistant.
+This is a custom repository — add it to HACS once, then install as usual.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Muxee4ka&repository=hass-tele2&category=integration)
+
+Or manually: **HACS → ⋮ → Custom repositories** → add
+`https://github.com/Muxee4ka/hass-tele2` with category **Integration** →
+install **Tele2 (t2)** → restart Home Assistant.
 
 ### Manual
 
-Copy `custom_components/tele2` into your Home Assistant `config/custom_components/`
-directory and restart Home Assistant.
+Copy `custom_components/tele2` into your Home Assistant
+`config/custom_components/` directory and restart Home Assistant.
 
 ## Setup
 
-1. **Settings → Devices & Services → Add Integration → Tele2 (t2)**.
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=tele2)
+
+1. **Settings → Devices & Services → Add Integration → Tele2 (t2)** (or use the
+   button above).
 2. Enter your phone number in `79991234567` format. You will receive an SMS code.
 3. Enter the SMS code. The integration stores the resulting tokens and creates a
    device with all sensors.
@@ -50,7 +90,7 @@ directory and restart Home Assistant.
 If the refresh token ever dies, Home Assistant raises a reauthentication prompt;
 re-enter a fresh SMS code to restore access.
 
-### Options
+## Options
 
 Under the integration's **Configure** button you can set:
 
@@ -71,7 +111,25 @@ Under the integration's **Configure** button you can set:
   expose a switch per service. Turn off to drop the service switches and the
   Connected services sensor (MiXX and SIM-block switches stay).
 
-## Services & switches
+## Sensors
+
+| Sensor          | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| Balance         | Account balance (RUB)                                  |
+| Data remaining  | Remaining data package (GB)                            |
+| Voice remaining | Remaining minutes                                      |
+| SMS remaining   | Remaining SMS                                          |
+| Rollover data / voice / SMS | Carried-over package balances              |
+| SIM status      | SIM state (e.g. `ACTIVATED`)                           |
+| Tariff          | Current tariff name                                    |
+| Abonent fee     | Actual monthly fee paid, reflecting discounts (`base_fee` attribute has the list price) |
+| Package renews  | Timestamp when the tariff package renews               |
+| Linked numbers  | Count of linked numbers (`numbers` attribute)          |
+| Connected services | Count of connected services; `services` attribute lists `{billing_id, name, fee, status}` and `monthly_fee` sums their abonent fees |
+| Monthly charges | Sum of monthly charges (RUB), with a `charges` attribute |
+| Active lots     | Number of active lots, with a `lots` attribute. Each lot includes its `position`, `cost_per_hour` and `profitable_hours` (boost-profitability analytics) |
+
+## Switches
 
 The integration adds a `switch` platform:
 
@@ -86,40 +144,10 @@ The integration adds a `switch` platform:
 - **SIM block** — a switch on **every** number (master and linked); on = SIM
   suspended. This mirrors the `tele2.set_status` service for dashboard use.
 
+> [!NOTE]
 > Connecting/disconnecting some paid services may be gated by t2 (and a few are
 > account-specific); if a toggle fails, the error surfaces in Home Assistant and
 > the service stays as it was.
-
-## Linked numbers (multi-number)
-
-If your master number has other numbers linked to it (t2 «Управление номерами»),
-adding the master is enough: the integration discovers them via the account's
-single token and creates one **device per number**, with the linked numbers
-nested under the master (`via_device`). Each number gets its own balance /
-package / tariff / SIM-status sensors; the **Linked numbers** sensor lives only
-on the master.
-
-To act on a specific number, target that number's **device** when calling a
-service (e.g. `tele2.set_status` on a linked number's device blocks just that
-SIM). New numbers linked later are picked up after reloading the integration.
-
-## Sensors
-
-| Sensor          | Description                                            |
-| --------------- | ------------------------------------------------------ |
-| Balance         | Account balance (RUB)                                  |
-| Data remaining  | Remaining data package (GB)                            |
-| Voice remaining | Remaining minutes                                      |
-| SMS remaining   | Remaining SMS                                          |
-| Rollover data / voice / SMS | Carried-over package balances                  |
-| SIM status      | SIM state (e.g. `ACTIVATED`)                           |
-| Tariff          | Current tariff name                                    |
-| Abonent fee     | Actual monthly fee paid, reflecting discounts (`base_fee` attribute has the list price) |
-| Package renews  | Timestamp when the tariff package renews               |
-| Linked numbers  | Count of linked numbers (`numbers` attribute)          |
-| Connected services | Count of connected services; `services` attribute lists `{billing_id, name, fee, status}` and `monthly_fee` sums their abonent fees |
-| Monthly charges | Sum of monthly charges (RUB), with a `charges` attribute |
-| Active lots     | Number of active lots, with a `lots` attribute. Each lot includes its `position`, `cost_per_hour` and `profitable_hours` (boost-profitability analytics) |
 
 ## Services
 
@@ -142,9 +170,23 @@ is configured, but use it to pick which linked number an action applies to).
 | `tele2.connect_service` | Connect an add-on service by its `billing_id` (see the Connected services sensor). Disconnecting is done via the service's switch. |
 | `tele2.refresh`      | Force an immediate data refresh.                    |
 
-> **Note:** buying lots from the marketplace is **not** supported in this
-> version — each purchase requires a per-transaction SMS confirmation that does
-> not map cleanly onto a service call.
+> [!NOTE]
+> Buying lots from the marketplace is **not** supported in this version — each
+> purchase requires a per-transaction SMS confirmation that does not map cleanly
+> onto a service call.
+
+## Linked numbers (multi-number)
+
+If your master number has other numbers linked to it (t2 «Управление номерами»),
+adding the master is enough: the integration discovers them via the account's
+single token and creates one **device per number**, with the linked numbers
+nested under the master (`via_device`). Each number gets its own balance /
+package / tariff / SIM-status sensors; the **Linked numbers** sensor lives only
+on the master.
+
+To act on a specific number, target that number's **device** when calling a
+service (e.g. `tele2.set_status` on a linked number's device blocks just that
+SIM). New numbers linked later are picked up after reloading the integration.
 
 ## Blueprints
 
@@ -160,9 +202,36 @@ Import via **Settings → Automations & Scenes → Blueprints → Import Bluepri
   `tele2.undercut_all_lots` on a schedule to keep your lots priced just below
   competitors (respecting a minimum price).
 
+> [!NOTE]
 > Active hours in the blueprints use Home Assistant's own timezone — set
 > `TZ=Europe/Moscow` (the bundled `docker-compose.yml` already does) for Moscow
 > time.
+
+## Troubleshooting
+
+- **Requests start failing / getting blocked** — t2's anti-bot may have blocked
+  the current TLS profile. Change the **TLS profile** (`impersonate`) option to
+  another curl_cffi browser (e.g. `safari18_0`, `chrome131`) and reload.
+- **Reauthentication prompt** — the refresh token expired. Open the prompt and
+  enter a fresh SMS code.
+- **No marketplace data on a linked number** — expected: the marketplace is
+  master-only on tested accounts (see [Options](#options)).
+- **Filing an issue** — enable debug logging and attach the integration's
+  redacted diagnostics (**device → ⋮ → Download diagnostics**):
+
+  ```yaml
+  # configuration.yaml
+  logger:
+    logs:
+      custom_components.tele2: debug
+  ```
+
+## Disclaimer
+
+This is an **unofficial** integration built on a reverse-engineered t2 API. It
+is not affiliated with, endorsed by, or supported by t2 / Tele2. The API may
+change or block automated access at any time. Use at your own risk; you are
+responsible for complying with t2's terms of service.
 
 ## Credits
 
