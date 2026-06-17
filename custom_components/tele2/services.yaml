@@ -1,0 +1,173 @@
+create_lot:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    traffic_type:
+      required: true
+      selector:
+        select:
+          options: [voice, data, sms]
+    value:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    amount:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    emojis:
+      selector:
+        text:
+patch_lot:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    lot_id:
+      required: true
+      selector:
+        text:
+    amount:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+premium_lot:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    lot_id:
+      required: true
+      selector:
+        text:
+delete_lot:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    lot_id:
+      required: true
+      selector:
+        text:
+set_status:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    status:
+      required: true
+      selector:
+        select:
+          options: [ACTIVATED, SUSPENDED]
+refresh:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+premium_all_lots:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    traffic_type:
+      selector:
+        select:
+          options: [voice, data, sms]
+delete_all_lots:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    traffic_type:
+      selector:
+        select:
+          options: [voice, data, sms]
+create_lots:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    traffic_type:
+      required: true
+      selector:
+        select:
+          options: [voice, data, sms]
+    volumes:
+      required: true
+      selector:
+        object:
+    amount:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    emojis:
+      selector:
+        text:
+undercut_lot:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    lot_id:
+      required: true
+      selector:
+        text:
+    step:
+      selector:
+        number:
+          min: 1
+          mode: box
+    min_amount:
+      selector:
+        number:
+          min: 1
+          mode: box
+undercut_all_lots:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    traffic_type:
+      selector:
+        select:
+          options: [voice, data, sms]
+    step:
+      selector:
+        number:
+          min: 1
+          mode: box
+    min_amount:
+      selector:
+        number:
+          min: 1
+          mode: box
+connect_service:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: tele2
+    billing_id:
+      required: true
+      selector:
+        text:

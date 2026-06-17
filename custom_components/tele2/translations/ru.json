@@ -1,0 +1,322 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Введите номер t2, чтобы получить SMS-код.",
+        "data": {
+          "phone": "Номер телефона (79991234567)",
+          "impersonate": "TLS-профиль (curl_cffi impersonate)"
+        }
+      },
+      "sms": {
+        "description": "Введите код из SMS.",
+        "data": {
+          "code": "Код из SMS"
+        }
+      }
+    },
+    "error": {
+      "sms_failed": "Не удалось запросить SMS-код. Проверьте номер и повторите.",
+      "invalid_auth": "Неверный код или ошибка авторизации.",
+      "cannot_connect": "Не удалось связаться с сервисом t2. Проверьте доступ к сети и повторите."
+    },
+    "abort": {
+      "already_configured": "Этот номер уже добавлен.",
+      "reauth_successful": "Повторная авторизация прошла успешно."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Интервал обновления (секунды)",
+          "impersonate": "TLS-профиль (curl_cffi impersonate)",
+          "boost_interval": "Интервал поднятия для аналитики (минуты)",
+          "boost_cost": "Стоимость поднятия (руб.)",
+          "manage_slaves": "Управлять привязанными номерами",
+          "slave_market": "Маркет на привязанных номерах",
+          "manage_services": "Управлять услугами"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "balance": {
+        "name": "Баланс"
+      },
+      "data_remaining": {
+        "name": "Остаток интернета"
+      },
+      "voice_remaining": {
+        "name": "Остаток минут"
+      },
+      "sms_remaining": {
+        "name": "Остаток SMS"
+      },
+      "rollover_data": {
+        "name": "Перенос интернета"
+      },
+      "rollover_voice": {
+        "name": "Перенос минут"
+      },
+      "rollover_sms": {
+        "name": "Перенос SMS"
+      },
+      "sim_status": {
+        "name": "Статус SIM"
+      },
+      "tariff": {
+        "name": "Тариф"
+      },
+      "abonent_fee": {
+        "name": "Абонентская плата"
+      },
+      "package_renewal": {
+        "name": "Обновление пакета"
+      },
+      "linked_numbers": {
+        "name": "Привязанные номера"
+      },
+      "monthly_charges": {
+        "name": "Расходы за месяц"
+      },
+      "monthly_charges_subscription": {
+        "name": "Расходы: абонентская плата"
+      },
+      "monthly_charges_messages": {
+        "name": "Расходы: сообщения"
+      },
+      "monthly_charges_content": {
+        "name": "Расходы: полезные услуги"
+      },
+      "monthly_charges_other": {
+        "name": "Расходы: прочее"
+      },
+      "active_lots": {
+        "name": "Активные лоты"
+      },
+      "connected_services": {
+        "name": "Подключённые услуги"
+      }
+    },
+    "switch": {
+      "sim_block": {
+        "name": "Блокировка SIM"
+      },
+      "mixx": {
+        "name": "Подписка MiXX"
+      }
+    }
+  },
+  "services": {
+    "create_lot": {
+      "name": "Создать лот",
+      "description": "Создать новый лот на Маркете.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "traffic_type": {
+          "name": "Тип трафика",
+          "description": "voice, data или sms."
+        },
+        "value": {
+          "name": "Объём",
+          "description": "Минуты / ГБ / SMS."
+        },
+        "amount": {
+          "name": "Цена",
+          "description": "Цена в рублях."
+        },
+        "emojis": {
+          "name": "Эмодзи",
+          "description": "'None', 'random' или список."
+        }
+      }
+    },
+    "patch_lot": {
+      "name": "Изменить цену лота",
+      "description": "Изменить цену существующего лота.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "lot_id": {
+          "name": "ID лота",
+          "description": "Идентификатор лота."
+        },
+        "amount": {
+          "name": "Цена",
+          "description": "Новая цена в рублях."
+        }
+      }
+    },
+    "premium_lot": {
+      "name": "Поднять лот",
+      "description": "Поднять лот в топ выдачи (5 руб.).",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "lot_id": {
+          "name": "ID лота",
+          "description": "Идентификатор лота."
+        }
+      }
+    },
+    "premium_all_lots": {
+      "name": "Поднять все лоты",
+      "description": "Поднять все активные лоты в топ (5 руб. за каждый).",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "traffic_type": {
+          "name": "Тип трафика",
+          "description": "Ограничить voice/data/sms. Пусто = все."
+        }
+      }
+    },
+    "delete_all_lots": {
+      "name": "Удалить все лоты",
+      "description": "Снять все активные лоты с продажи (опц. по типу трафика).",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "traffic_type": {
+          "name": "Тип трафика",
+          "description": "Ограничить voice/data/sms. Пусто = все."
+        }
+      }
+    },
+    "create_lots": {
+      "name": "Создать лоты",
+      "description": "Создать несколько лотов из списка объёмов по одной цене.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "traffic_type": {
+          "name": "Тип трафика",
+          "description": "voice, data или sms."
+        },
+        "volumes": {
+          "name": "Объёмы",
+          "description": "Список объёмов лотов, напр. [50, 30, 20]."
+        },
+        "amount": {
+          "name": "Цена",
+          "description": "Цена за лот в рублях."
+        },
+        "emojis": {
+          "name": "Эмодзи",
+          "description": "'None', 'random' или список."
+        }
+      }
+    },
+    "undercut_lot": {
+      "name": "Перебить цену лота",
+      "description": "Снизить цену лота чуть ниже самого дешёвого конкурента по его объёму.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "lot_id": {
+          "name": "ID лота",
+          "description": "Идентификатор лота."
+        },
+        "step": {
+          "name": "Шаг демпинга",
+          "description": "На сколько рублей ниже дешёвого конкурента."
+        },
+        "min_amount": {
+          "name": "Мин. цена",
+          "description": "Не опускать цену ниже этого (руб.)."
+        }
+      }
+    },
+    "undercut_all_lots": {
+      "name": "Перебить цены всех лотов",
+      "description": "Перебить цену всех активных лотов ниже дешёвого конкурента (опц. по типу трафика).",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "traffic_type": {
+          "name": "Тип трафика",
+          "description": "Ограничить voice/data/sms. Пусто = все."
+        },
+        "step": {
+          "name": "Шаг демпинга",
+          "description": "На сколько рублей ниже дешёвого конкурента."
+        },
+        "min_amount": {
+          "name": "Мин. цена",
+          "description": "Не опускать цену ниже этого (руб.)."
+        }
+      }
+    },
+    "delete_lot": {
+      "name": "Удалить лот",
+      "description": "Снять лот с продажи.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "lot_id": {
+          "name": "ID лота",
+          "description": "Идентификатор лота."
+        }
+      }
+    },
+    "set_status": {
+      "name": "Статус SIM",
+      "description": "Заблокировать или разблокировать SIM-карту.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "status": {
+          "name": "Статус",
+          "description": "ACTIVATED или SUSPENDED."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Обновить данные",
+      "description": "Принудительно обновить данные.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        }
+      }
+    },
+    "connect_service": {
+      "name": "Подключить услугу",
+      "description": "Подключить услугу по её billing id.",
+      "fields": {
+        "device_id": {
+          "name": "Аккаунт",
+          "description": "Устройство аккаунта t2."
+        },
+        "billing_id": {
+          "name": "Billing ID",
+          "description": "billingId услуги (см. сенсор «Подключённые услуги»)."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Enter your t2 phone number to receive an SMS code.",
+        "data": {
+          "phone": "Phone number (79991234567)",
+          "impersonate": "TLS profile (curl_cffi impersonate)"
+        }
+      },
+      "sms": {
+        "description": "Enter the SMS code you received.",
+        "data": {
+          "code": "SMS code"
+        }
+      }
+    },
+    "error": {
+      "sms_failed": "Could not request an SMS code. Check the number and try again.",
+      "invalid_auth": "Invalid code or authorization failed.",
+      "cannot_connect": "Could not reach the t2 service. Check connectivity and try again."
+    },
+    "abort": {
+      "already_configured": "This number is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Update interval (seconds)",
+          "impersonate": "TLS profile (curl_cffi impersonate)",
+          "boost_interval": "Boost interval for analytics (minutes)",
+          "boost_cost": "Boost cost (RUB)",
+          "manage_slaves": "Manage linked numbers",
+          "slave_market": "Enable marketplace on linked numbers",
+          "manage_services": "Manage services"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "balance": {
+        "name": "Balance"
+      },
+      "data_remaining": {
+        "name": "Data remaining"
+      },
+      "voice_remaining": {
+        "name": "Voice remaining"
+      },
+      "sms_remaining": {
+        "name": "SMS remaining"
+      },
+      "rollover_data": {
+        "name": "Rollover data"
+      },
+      "rollover_voice": {
+        "name": "Rollover voice"
+      },
+      "rollover_sms": {
+        "name": "Rollover SMS"
+      },
+      "sim_status": {
+        "name": "SIM status"
+      },
+      "tariff": {
+        "name": "Tariff"
+      },
+      "abonent_fee": {
+        "name": "Abonent fee"
+      },
+      "package_renewal": {
+        "name": "Package renews"
+      },
+      "linked_numbers": {
+        "name": "Linked numbers"
+      },
+      "monthly_charges": {
+        "name": "Monthly charges"
+      },
+      "monthly_charges_subscription": {
+        "name": "Charges: subscription fee"
+      },
+      "monthly_charges_messages": {
+        "name": "Charges: messages"
+      },
+      "monthly_charges_content": {
+        "name": "Charges: content & services"
+      },
+      "monthly_charges_other": {
+        "name": "Charges: other"
+      },
+      "active_lots": {
+        "name": "Active lots"
+      },
+      "connected_services": {
+        "name": "Connected services"
+      }
+    },
+    "switch": {
+      "sim_block": {
+        "name": "SIM block"
+      },
+      "mixx": {
+        "name": "MiXX subscription"
+      }
+    }
+  },
+  "services": {
+    "create_lot": {
+      "name": "Create lot",
+      "description": "Create a new marketplace lot.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "traffic_type": {
+          "name": "Traffic type",
+          "description": "voice, data or sms."
+        },
+        "value": {
+          "name": "Volume",
+          "description": "Minutes / GB / SMS."
+        },
+        "amount": {
+          "name": "Price",
+          "description": "Price in rubles."
+        },
+        "emojis": {
+          "name": "Emojis",
+          "description": "'None', 'random', or a list."
+        }
+      }
+    },
+    "patch_lot": {
+      "name": "Reprice lot",
+      "description": "Change the price of an existing lot.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "lot_id": {
+          "name": "Lot ID",
+          "description": "Lot identifier."
+        },
+        "amount": {
+          "name": "Price",
+          "description": "New price in rubles."
+        }
+      }
+    },
+    "premium_lot": {
+      "name": "Boost lot",
+      "description": "Boost a lot to the top of the listing (costs 5 RUB).",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "lot_id": {
+          "name": "Lot ID",
+          "description": "Lot identifier."
+        }
+      }
+    },
+    "premium_all_lots": {
+      "name": "Boost all lots",
+      "description": "Boost every active marketplace lot to the top (costs 5 RUB each).",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "traffic_type": {
+          "name": "Traffic type",
+          "description": "Limit to voice, data or sms. Empty = all."
+        }
+      }
+    },
+    "delete_all_lots": {
+      "name": "Delete all lots",
+      "description": "Remove all active lots from sale (optionally filtered by traffic type).",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "traffic_type": {
+          "name": "Traffic type",
+          "description": "Limit to voice, data or sms. Empty = all."
+        }
+      }
+    },
+    "create_lots": {
+      "name": "Create lots",
+      "description": "Create several lots at once from a list of volumes, all at the same price.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "traffic_type": {
+          "name": "Traffic type",
+          "description": "voice, data or sms."
+        },
+        "volumes": {
+          "name": "Volumes",
+          "description": "List of lot volumes, e.g. [50, 30, 20]."
+        },
+        "amount": {
+          "name": "Price",
+          "description": "Price per lot in rubles."
+        },
+        "emojis": {
+          "name": "Emojis",
+          "description": "'None', 'random', or a list."
+        }
+      }
+    },
+    "undercut_lot": {
+      "name": "Undercut lot",
+      "description": "Lower a lot's price to just below the cheapest competitor for its volume.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "lot_id": {
+          "name": "Lot ID",
+          "description": "Lot identifier."
+        },
+        "step": {
+          "name": "Undercut step",
+          "description": "How many rubles below the cheapest competitor."
+        },
+        "min_amount": {
+          "name": "Minimum price",
+          "description": "Never price below this (rubles)."
+        }
+      }
+    },
+    "undercut_all_lots": {
+      "name": "Undercut all lots",
+      "description": "Undercut every active lot below its cheapest competitor (optionally filtered by traffic type).",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "traffic_type": {
+          "name": "Traffic type",
+          "description": "Limit to voice, data or sms. Empty = all."
+        },
+        "step": {
+          "name": "Undercut step",
+          "description": "How many rubles below the cheapest competitor."
+        },
+        "min_amount": {
+          "name": "Minimum price",
+          "description": "Never price below this (rubles)."
+        }
+      }
+    },
+    "delete_lot": {
+      "name": "Delete lot",
+      "description": "Remove a lot from sale.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "lot_id": {
+          "name": "Lot ID",
+          "description": "Lot identifier."
+        }
+      }
+    },
+    "set_status": {
+      "name": "Set SIM status",
+      "description": "Block or unblock the SIM card.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "status": {
+          "name": "Status",
+          "description": "ACTIVATED or SUSPENDED."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Refresh data",
+      "description": "Force a data refresh.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        }
+      }
+    },
+    "connect_service": {
+      "name": "Connect service",
+      "description": "Connect an add-on service by its billing id.",
+      "fields": {
+        "device_id": {
+          "name": "Account",
+          "description": "t2 account device."
+        },
+        "billing_id": {
+          "name": "Billing ID",
+          "description": "Service billingId (see the Connected services sensor)."
+        }
+      }
+    }
+  }
+}

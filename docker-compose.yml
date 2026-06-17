@@ -1,0 +1,16 @@
+services:
+  homeassistant:
+    container_name: hass-tele2-dev
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      # Конфиг HA сохраняется здесь (создастся при первом запуске)
+      - ./.ha-config:/config
+      # Интеграция монтируется из репозитория — правки видны после перезапуска
+      - ./custom_components/tele2:/config/custom_components/tele2
+      # Блюпринт автоудержания лота в топе
+      - ./blueprints/automation/tele2:/config/blueprints/automation/tele2

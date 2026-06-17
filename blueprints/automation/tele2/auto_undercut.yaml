@@ -1,0 +1,77 @@
+blueprint:
+  name: t2 Маркет — авто-демпинг (перебивать цены)
+  description: >
+    Periodically undercuts all your active lots just below the cheapest
+    competitor during active hours. Active hours use Home Assistant's
+    timezone — set TZ=Europe/Moscow for Moscow time.
+  domain: automation
+  input:
+    account_device:
+      name: t2 account
+      selector:
+        device:
+          integration: tele2
+    check_interval:
+      name: Check interval (minutes)
+      default: 30
+      selector:
+        number:
+          min: 5
+          max: 240
+          mode: box
+    active_start:
+      name: Active hours start (0-23)
+      default: 10
+      selector:
+        number:
+          min: 0
+          max: 23
+          mode: box
+    active_end:
+      name: Active hours end (1-24)
+      default: 24
+      selector:
+        number:
+          min: 1
+          max: 24
+          mode: box
+    min_amount:
+      name: Minimum price (RUB)
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 10000
+          mode: box
+    step:
+      name: Undercut step (RUB)
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: box
+
+mode: single
+
+trigger_variables:
+  check_interval: !input check_interval
+
+trigger:
+  - platform: time_pattern
+    minutes: "/{{ check_interval }}"
+
+variables:
+  active_start: !input active_start
+  active_end: !input active_end
+
+condition:
+  - condition: template
+    value_template: "{{ (active_start | int) <= now().hour < (active_end | int) }}"
+
+action:
+  - service: tele2.undercut_all_lots
+    data:
+      device_id: !input account_device
+      min_amount: !input min_amount
+      step: !input step

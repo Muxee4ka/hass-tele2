@@ -1,0 +1,69 @@
+blueprint:
+  name: t2 Маркет — удержание лота в топе
+  description: >
+    Periodically checks a lot's position in the t2 marketplace listing and boosts
+    it («ракета») when it falls below the chosen threshold.
+  domain: automation
+  input:
+    lots_sensor:
+      name: Active lots sensor
+      description: The "Active lots" sensor of your t2 account.
+      selector:
+        entity:
+          integration: tele2
+    account_device:
+      name: t2 account
+      selector:
+        device:
+          integration: tele2
+    lot_id:
+      name: Lot ID
+      description: The id of the lot to keep on top (see the sensor's attributes).
+      selector:
+        text:
+    threshold:
+      name: Position threshold
+      description: Boost when the lot's position is worse than this number.
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 50
+          mode: box
+    check_interval:
+      name: Check interval (minutes)
+      default: 15
+      selector:
+        number:
+          min: 5
+          max: 240
+          mode: box
+
+mode: single
+
+trigger_variables:
+  check_interval: !input check_interval
+
+trigger:
+  - platform: time_pattern
+    minutes: "/{{ check_interval }}"
+
+variables:
+  lots_sensor: !input lots_sensor
+  lot_id: !input lot_id
+  threshold: !input threshold
+  lots: "{{ state_attr(lots_sensor, 'lots') | default([], true) }}"
+  target_lot: "{{ lots | selectattr('id', 'eq', lot_id) | list }}"
+  position: >
+    {{ target_lot[0].position if target_lot and target_lot[0].position is not none
+       else 999 }}
+
+condition:
+  - condition: template
+    value_template: "{{ position | int(999) > threshold | int }}"
+
+action:
+  - service: tele2.premium_lot
+    data:
+      device_id: !input account_device
+      lot_id: !input lot_id

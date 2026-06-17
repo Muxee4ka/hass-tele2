@@ -1,0 +1,85 @@
+blueprint:
+  name: t2 Маркет — удержание всех лотов в топе
+  description: >
+    Periodically boosts ALL active lots («ракета») during active hours so they
+    stay near the top of the listing. Active hours use Home Assistant's
+    timezone — set TZ=Europe/Moscow for Moscow time.
+  domain: automation
+  input:
+    account_device:
+      name: t2 account
+      selector:
+        device:
+          integration: tele2
+    check_interval:
+      name: Boost interval (minutes)
+      default: 15
+      selector:
+        number:
+          min: 5
+          max: 240
+          mode: box
+    active_start:
+      name: Active hours start (0-23)
+      default: 10
+      selector:
+        number:
+          min: 0
+          max: 23
+          mode: box
+    active_end:
+      name: Active hours end (1-24)
+      default: 24
+      selector:
+        number:
+          min: 1
+          max: 24
+          mode: box
+    traffic_type:
+      name: Traffic type
+      description: Which lots to boost.
+      default: all
+      selector:
+        select:
+          options:
+            - label: All
+              value: all
+            - label: Voice
+              value: voice
+            - label: Data
+              value: data
+            - label: SMS
+              value: sms
+
+mode: single
+
+trigger_variables:
+  check_interval: !input check_interval
+
+trigger:
+  - platform: time_pattern
+    minutes: "/{{ check_interval }}"
+
+variables:
+  active_start: !input active_start
+  active_end: !input active_end
+  traffic_type: !input traffic_type
+
+condition:
+  - condition: template
+    value_template: "{{ (active_start | int) <= now().hour < (active_end | int) }}"
+
+action:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ traffic_type == 'all' }}"
+        sequence:
+          - service: tele2.premium_all_lots
+            data:
+              device_id: !input account_device
+    default:
+      - service: tele2.premium_all_lots
+        data:
+          device_id: !input account_device
+          traffic_type: !input traffic_type

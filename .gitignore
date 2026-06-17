@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+
+# Docker dev config (HA генерирует свой конфиг здесь при первом запуске)
+.ha-config/
+
+# Локальный песочница-скрипт с реальным номером — не в git
+main.py
+
+# Claude Code local config
+.claude/
+
+# Внутренние материалы разработки и одноразовые генераторы — не публикуем
+docs/
+scripts/
+brand_src/
