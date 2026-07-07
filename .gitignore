@@ -29,8 +29,11 @@ htmlcov/
 # Локальный песочница-скрипт с реальным номером — не в git
 main.py
 
-# Claude Code local config
-.claude/
+# Claude Code: ignore local state, but keep shared skills
+.claude/*
+!.claude/skills/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Внутренние материалы разработки и одноразовые генераторы — не публикуем
 docs/
