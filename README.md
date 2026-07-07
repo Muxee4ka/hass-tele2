@@ -2,11 +2,10 @@
   <img src="custom_components/tele2/brand/logo.png" alt="Tele2 (t2)" height="80">
 </p>
 
-<h1 align="center">Tele2 (t2) — Home Assistant integration</h1>
+<h1 align="center">Tele2 (t2) — интеграция для Home Assistant</h1>
 
 <p align="center">
-  Account, marketplace and SIM control for <b>t2 (Tele2 Russia)</b> subscribers,
-  right inside Home Assistant.
+  Аккаунт, Маркет и управление SIM-картой <b>t2 (Tele2 Россия)</b> прямо в Home Assistant.
 </p>
 
 <p align="center">
@@ -17,208 +16,304 @@
   <img src="https://img.shields.io/maintenance/yes/2026.svg" alt="Maintained">
 </p>
 
-A config-entry-based custom integration that shows your t2 account and
-[t2 Маркет](https://t2.ru) marketplace data as sensors and exposes
-marketplace / SIM operations as services and switches. It is backed by the
-[`tele2api`](https://github.com/Muxee4ka/tele2api) client and keeps the access
-token fresh in the background.
+Кастомная config-entry интеграция, которая показывает данные вашего аккаунта t2
+и [t2 Маркета](https://t2.ru) в виде сенсоров и позволяет управлять лотами
+Маркета и SIM-картой через сервисы и переключатели. Работает поверх клиента
+[`tele2api`](https://github.com/Muxee4ka/tele2api) и сама поддерживает токен
+доступа свежим в фоне.
 
 ---
 
-## Contents
+## Содержание
 
-- [Features](#features)
-- [Installation](#installation)
-- [Setup](#setup)
-- [Options](#options)
-- [Sensors](#sensors)
-- [Switches](#switches)
-- [Services](#services)
-- [Linked numbers (multi-number)](#linked-numbers-multi-number)
-- [Blueprints](#blueprints)
-- [Troubleshooting](#troubleshooting)
-- [Disclaimer](#disclaimer)
-- [Credits](#credits)
+- [Возможности](#возможности)
+- [Установка](#установка)
+- [Настройка](#настройка)
+- [Опции](#опции)
+- [Сенсоры](#сенсоры)
+- [Переключатели](#переключатели)
+- [Сервисы](#сервисы)
+- [Действия с лотами Маркета](#действия-с-лотами-маркета)
+- [Привязанные номера (мультиномер)](#привязанные-номера-мультиномер)
+- [Blueprints (автоматизации)](#blueprints-автоматизации)
+- [Диагностика проблем](#диагностика-проблем)
+- [Дисклеймер](#дисклеймер)
+- [Благодарности](#благодарности)
 
-## Features
+## Возможности
 
-- **Sensors** for balance, remaining package (data / voice / SMS), rollover
-  balances, SIM status, tariff, abonent fee, package-renewal date, linked
-  numbers, monthly charges and active marketplace lots (each lot includes its
-  listing position and boost-profitability analytics).
-- **Marketplace services** to create lots (single or in bulk), reprice, boost
-  («ракета») a single lot or **all** lots, delete a lot or **all** lots, and
-  **undercut** competitors (demping) for one lot or all lots.
-- **Multi-number**: adding your master number auto-discovers every linked
-  (slave) number on the account and exposes each as its own device with the full
-  sensor set; SIM block/unblock and per-lot services target whichever number's
-  device you pick.
-- **SIM / data services** to block/unblock the SIM and force a refresh.
-- **Service switches** to connect/disconnect t2 add-on services, toggle the MiXX
-  subscription, and block/unblock each number's SIM from the dashboard.
-- **Automation blueprints** to keep a single lot, or all lots, pinned near the
-  top, and to auto-undercut competitors on a schedule.
-- Configurable TLS profile (`impersonate`) to get past t2's anti-bot, background
-  token refresh, reauth flow, redacted diagnostics, and EN + RU translations.
+- **Сенсоры**: баланс, остаток пакета (интернет / минуты / SMS), перенос
+  остатков, статус SIM, тариф, абонентская плата, дата обновления пакета,
+  привязанные номера, расходы за месяц и активные лоты Маркета (у каждого
+  лота — его позиция в выдаче и аналитика выгодности поднятия).
+- **Сервисы Маркета**: создание лотов (по одному или сразу пачкой), изменение
+  цены, поднятие («ракета») одного лота или **всех** лотов сразу, удаление
+  лота или **всех** лотов, а также **демпинг** — автоматическое снижение цены
+  ниже конкурентов для одного лота или для всех сразу.
+- **Мультиномер**: при добавлении основного номера интеграция сама находит все
+  привязанные к аккаунту номера и создаёт для каждого отдельное устройство со
+  своим набором сенсоров; блокировка SIM и операции с лотами применяются к
+  тому номеру, чьё устройство вы указали.
+- **Сервисы SIM / данных**: блокировка/разблокировка SIM и принудительное
+  обновление данных.
+- **Переключатели**: подключение/отключение дополнительных услуг t2,
+  подписка MiXX и блокировка/разблокировка SIM каждого номера прямо с
+  дашборда.
+- **Blueprints-автоматизации**: держать один лот (или все лоты) наверху
+  выдачи, а также автоматически демпинговать конкурентов по расписанию.
+- Настраиваемый TLS-профиль (`impersonate`) для обхода анти-бота t2, фоновое
+  обновление токена, повторная авторизация (reauth), диагностика с
+  маскированными данными, RU + EN переводы.
 
-## Installation
+## Установка
 
-### HACS (recommended)
+### HACS (рекомендуется)
 
-This is a custom repository — add it to HACS once, then install as usual.
+Это кастомный репозиторий — сначала добавьте его в HACS, затем ставьте как
+обычно.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Muxee4ka&repository=hass-tele2&category=integration)
 
-Or manually: **HACS → ⋮ → Custom repositories** → add
-`https://github.com/Muxee4ka/hass-tele2` with category **Integration** →
-install **Tele2 (t2)** → restart Home Assistant.
+Либо вручную: **HACS → ⋮ → Пользовательские репозитории** → добавить
+`https://github.com/Muxee4ka/hass-tele2` с категорией **Интеграция** →
+установить **Tele2 (t2)** → перезапустить Home Assistant.
 
-### Manual
+### Вручную
 
-Copy `custom_components/tele2` into your Home Assistant
-`config/custom_components/` directory and restart Home Assistant.
+Скопируйте `custom_components/tele2` в директорию `config/custom_components/`
+вашего Home Assistant и перезапустите его.
 
-## Setup
+## Настройка
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=tele2)
 
-1. **Settings → Devices & Services → Add Integration → Tele2 (t2)** (or use the
-   button above).
-2. Enter your phone number in `79991234567` format. You will receive an SMS code.
-3. Enter the SMS code. The integration stores the resulting tokens and creates a
-   device with all sensors.
+1. **Настройки → Устройства и службы → Добавить интеграцию → Tele2 (t2)**
+   (или используйте кнопку выше).
+2. Введите номер телефона в формате `79991234567`. Придёт SMS с кодом.
+3. Введите код из SMS. Интеграция сохранит полученные токены и создаст
+   устройство со всеми сенсорами.
 
-If the refresh token ever dies, Home Assistant raises a reauthentication prompt;
-re-enter a fresh SMS code to restore access.
+Если refresh-токен перестанет действовать, Home Assistant покажет запрос на
+повторную авторизацию — введите свежий код из SMS, чтобы восстановить доступ.
 
-## Options
+## Опции
 
-Under the integration's **Configure** button you can set:
+В настройках интеграции (кнопка **Настроить**) доступно:
 
-- **Update interval** (default 600 s, min 60 s) — how often data is polled.
-- **TLS profile** (`impersonate`, default `firefox133`) — the curl_cffi browser
-  profile used to pass t2's anti-bot. If requests start getting blocked, try
-  another profile (e.g. `safari18_0`, `chrome131`).
-- **Boost interval / Boost cost** — used only to compute the per-lot
-  profitability analytics (how long boosting a lot stays profitable).
-- **Manage linked numbers** (default on) — auto-discover the account's linked
-  numbers and create a device per number. Turn off to keep only the master.
-- **Enable marketplace on linked numbers** (default off) — also fetch
-  marketplace lots for linked numbers. Leave off unless your account allows it:
-  on the accounts tested, the marketplace is **master-only** (the t2 API returns
-  no lot data for linked numbers), so account sensors and SIM block/unblock work
-  for every number but marketplace operations are only reliable on the master.
-- **Manage services** (default on) — fetch the account's connected services and
-  expose a switch per service. Turn off to drop the service switches and the
-  Connected services sensor (MiXX and SIM-block switches stay).
+- **Интервал обновления** (по умолчанию 600 с, минимум 60 с) — как часто
+  опрашиваются данные.
+- **TLS-профиль** (`impersonate`, по умолчанию `firefox133`) — профиль
+  браузера curl_cffi, используемый для обхода анти-бота t2. Если запросы
+  начали блокироваться, попробуйте другой профиль (например, `safari18_0`,
+  `chrome131`).
+- **Интервал поднятия / Стоимость поднятия** — используются только для
+  расчёта аналитики выгодности по лотам (сколько времени поднятие лота
+  остаётся выгодным).
+- **Управлять привязанными номерами** (по умолчанию включено) —
+  автоматически находить привязанные к аккаунту номера и создавать для
+  каждого отдельное устройство. Выключите, чтобы оставить только основной
+  номер.
+- **Маркет на привязанных номерах** (по умолчанию выключено) — также
+  запрашивать лоты Маркета для привязанных номеров. Оставьте выключенным,
+  если аккаунт этого не поддерживает: на проверенных аккаунтах Маркет
+  работает **только для основного номера** (API t2 не отдаёт лоты для
+  привязанных номеров), поэтому сенсоры аккаунта и блокировка SIM работают
+  для всех номеров, а операции с Маркетом надёжны только на основном.
+- **Управлять услугами** (по умолчанию включено) — получать список
+  подключённых услуг и создавать переключатель для каждой. Выключите, чтобы
+  убрать переключатели услуг и сенсор «Подключённые услуги» (MiXX и
+  блокировка SIM останутся).
 
-## Sensors
+## Сенсоры
 
-| Sensor          | Description                                            |
-| --------------- | ------------------------------------------------------ |
-| Balance         | Account balance (RUB)                                  |
-| Data remaining  | Remaining data package (GB)                            |
-| Voice remaining | Remaining minutes                                      |
-| SMS remaining   | Remaining SMS                                          |
-| Rollover data / voice / SMS | Carried-over package balances              |
-| SIM status      | SIM state (e.g. `ACTIVATED`)                           |
-| Tariff          | Current tariff name                                    |
-| Abonent fee     | Actual monthly fee paid, reflecting discounts (`base_fee` attribute has the list price) |
-| Package renews  | Timestamp when the tariff package renews               |
-| Linked numbers  | Count of linked numbers (`numbers` attribute)          |
-| Connected services | Count of connected services; `services` attribute lists `{billing_id, name, fee, status}` and `monthly_fee` sums their abonent fees |
-| Monthly charges | Sum of monthly charges (RUB), with a `charges` attribute |
-| Active lots     | Number of active lots, with a `lots` attribute. Each lot includes its `position`, `cost_per_hour` and `profitable_hours` (boost-profitability analytics) |
+| Сенсор                | Описание                                                          |
+| ---------------------- | ------------------------------------------------------------------ |
+| Баланс                 | Баланс счёта (₽)                                                   |
+| Остаток интернета      | Остаток пакета интернета (ГБ)                                     |
+| Остаток минут          | Остаток минут                                                     |
+| Остаток SMS            | Остаток SMS                                                       |
+| Перенос интернета / минут / SMS | Перенесённые остатки пакета                              |
+| Статус SIM             | Состояние SIM (например, `ACTIVATED`)                             |
+| Тариф                  | Название текущего тарифа                                          |
+| Абонентская плата      | Фактическая ежемесячная плата с учётом скидок (атрибут `base_fee` — плата по прайсу) |
+| Обновление пакета      | Дата и время обновления пакета тарифа                             |
+| Привязанные номера     | Количество привязанных номеров (атрибут `numbers`)                |
+| Подключённые услуги    | Количество подключённых услуг; атрибут `services` содержит `{billing_id, name, fee, status}`, `monthly_fee` суммирует их абонентскую плату |
+| Расходы за месяц       | Сумма расходов за месяц (₽), с атрибутом `charges`                |
+| Активные лоты          | Количество активных лотов, атрибут `lots` — их список. У каждого лота есть `position` (позиция в выдаче), `cost_per_hour` и `profitable_hours` (аналитика выгодности поднятия) |
 
-## Switches
+## Переключатели
 
-The integration adds a `switch` platform:
+Интеграция добавляет платформу `switch`:
 
-- **Service switches** — one switch per connected service the API marks as
-  **removable** (`disconnectionAvailabilityStatus.canDisconnect == True`). Most
-  connected services are tariff-bundled and cannot be disconnected, so they get
-  **no switch** (they're still listed, read-only, in the Connected services
-  sensor). Turning a switch **off** disconnects the service. To **connect** a
-  service you don't have yet, call `tele2.connect_service` with its `billing_id`
-  — find the id in the **Connected services** sensor's attributes.
-- **MiXX subscription** — a switch on the master (uses `mixx_update_subscribe`).
-- **SIM block** — a switch on **every** number (master and linked); on = SIM
-  suspended. This mirrors the `tele2.set_status` service for dashboard use.
-
-> [!NOTE]
-> Connecting/disconnecting some paid services may be gated by t2 (and a few are
-> account-specific); if a toggle fails, the error surfaces in Home Assistant and
-> the service stays as it was.
-
-## Services
-
-All services accept an optional `device_id` to target a specific number — the
-master or any linked number's device (only required when more than one account
-is configured, but use it to pick which linked number an action applies to).
-
-| Service              | Description                                         |
-| -------------------- | --------------------------------------------------- |
-| `tele2.create_lot`   | Create a marketplace lot (`traffic_type`, `value`, `amount`, optional `emojis`). Returns the new `lot_id`. |
-| `tele2.create_lots`  | Create several lots at once from a list of `volumes` at one `amount`. Returns `{created, failed, errors}`. |
-| `tele2.patch_lot`    | Change a lot's price (`lot_id`, `amount`).          |
-| `tele2.premium_lot`  | Boost a lot to the top of the listing (costs 5 RUB). |
-| `tele2.premium_all_lots` | Boost **all** active lots at once (optionally filtered by `traffic_type`). Returns `{boosted, failed, errors}`. |
-| `tele2.undercut_lot` | Lower a lot's price just below the cheapest competitor (`lot_id`, optional `step`, `min_amount`). |
-| `tele2.undercut_all_lots` | Undercut **all** active lots below their cheapest competitors. Returns `{changed, results}`. |
-| `tele2.delete_lot`   | Remove a lot from sale (`lot_id`).                  |
-| `tele2.delete_all_lots` | Remove **all** active lots (optionally filtered by `traffic_type`). |
-| `tele2.set_status`   | Block/unblock the SIM (`status`: `ACTIVATED`/`SUSPENDED`). |
-| `tele2.connect_service` | Connect an add-on service by its `billing_id` (see the Connected services sensor). Disconnecting is done via the service's switch. |
-| `tele2.refresh`      | Force an immediate data refresh.                    |
+- **Переключатели услуг** — по одному на каждую подключённую услугу, которую
+  API помечает как **отключаемую** (`disconnectionAvailabilityStatus.canDisconnect
+  == True`). Большинство подключённых услуг включены в тариф и не могут быть
+  отключены — для них переключатель **не создаётся** (они всё равно видны,
+  только для чтения, в сенсоре «Подключённые услуги»). Выключение
+  переключателя отключает услугу. Чтобы **подключить** услугу, которой ещё
+  нет, вызовите сервис `tele2.connect_service` с её `billing_id` — id можно
+  найти в атрибутах сенсора «Подключённые услуги».
+- **Подписка MiXX** — переключатель на основном номере (использует
+  `mixx_update_subscribe`).
+- **Блокировка SIM** — переключатель на **каждом** номере (основном и
+  привязанных); включён = SIM заблокирована. Дублирует сервис
+  `tele2.set_status` для удобства работы с дашборда.
 
 > [!NOTE]
-> Buying lots from the marketplace is **not** supported in this version — each
-> purchase requires a per-transaction SMS confirmation that does not map cleanly
-> onto a service call.
+> Подключение/отключение некоторых платных услуг может быть ограничено
+> со стороны t2 (часть услуг индивидуальна для аккаунта); если переключение
+> не удалось, ошибка отобразится в Home Assistant, а состояние услуги
+> останется прежним.
 
-## Linked numbers (multi-number)
+## Сервисы
 
-If your master number has other numbers linked to it (t2 «Управление номерами»),
-adding the master is enough: the integration discovers them via the account's
-single token and creates one **device per number**, with the linked numbers
-nested under the master (`via_device`). Each number gets its own balance /
-package / tariff / SIM-status sensors; the **Linked numbers** sensor lives only
-on the master.
+Все сервисы принимают необязательный `device_id`, чтобы указать конкретный
+номер — основной или любой привязанный (обязателен только если настроено
+больше одного аккаунта, но используйте его, чтобы явно выбрать, на какой
+привязанный номер действует вызов).
 
-To act on a specific number, target that number's **device** when calling a
-service (e.g. `tele2.set_status` on a linked number's device blocks just that
-SIM). New numbers linked later are picked up after reloading the integration.
-
-## Blueprints
-
-Import via **Settings → Automations & Scenes → Blueprints → Import Blueprint**.
-
-- `blueprints/automation/tele2/auto_hold_lot.yaml` — keep a **single** lot on
-  top: checks its `position` via the **Active lots** sensor and calls
-  `tele2.premium_lot` whenever it falls below your threshold.
-- `blueprints/automation/tele2/auto_hold_all_lots.yaml` — keep **all** lots on
-  top: calls `tele2.premium_all_lots` every N minutes during the active hours
-  you choose.
-- `blueprints/automation/tele2/auto_undercut.yaml` — **auto-demping**: calls
-  `tele2.undercut_all_lots` on a schedule to keep your lots priced just below
-  competitors (respecting a minimum price).
+| Сервис                    | Описание                                                       |
+| -------------------------- | ---------------------------------------------------------------- |
+| `tele2.create_lot`         | Создать лот на Маркете (`traffic_type`, `value`, `amount`, опционально `emojis`). Возвращает `lot_id` нового лота. |
+| `tele2.create_lots`        | Создать сразу несколько лотов из списка `volumes` по одной цене `amount`. Возвращает `{created, failed, errors}`. |
+| `tele2.patch_lot`          | Изменить цену лота (`lot_id`, `amount`).                        |
+| `tele2.premium_lot`        | Поднять лот в топ выдачи (стоит 5 ₽).                            |
+| `tele2.premium_all_lots`   | Поднять **все** активные лоты разом (опционально с фильтром по `traffic_type`). Возвращает `{boosted, failed, errors}`. |
+| `tele2.undercut_lot`       | Снизить цену лота чуть ниже самого дешёвого конкурента (`lot_id`, опционально `step`, `min_amount`). |
+| `tele2.undercut_all_lots`  | Демпинг сразу по **всем** активным лотам ниже их дешевейших конкурентов. Возвращает `{changed, results}`. |
+| `tele2.delete_lot`         | Снять лот с продажи (`lot_id`).                                 |
+| `tele2.delete_all_lots`    | Снять с продажи **все** активные лоты (опционально с фильтром по `traffic_type`). |
+| `tele2.set_status`         | Заблокировать/разблокировать SIM (`status`: `ACTIVATED`/`SUSPENDED`). |
+| `tele2.connect_service`    | Подключить дополнительную услугу по её `billing_id` (см. сенсор «Подключённые услуги»). Отключение — через переключатель услуги. |
+| `tele2.refresh`            | Принудительно обновить данные.                                  |
 
 > [!NOTE]
-> Active hours in the blueprints use Home Assistant's own timezone — set
-> `TZ=Europe/Moscow` (the bundled `docker-compose.yml` already does) for Moscow
-> time.
+> Покупка лотов на Маркете в этой версии **не поддерживается** — каждая
+> покупка требует подтверждения SMS-кодом отдельно на транзакцию, что плохо
+> ложится на вызов сервиса.
 
-## Troubleshooting
+## Действия с лотами Маркета
 
-- **Requests start failing / getting blocked** — t2's anti-bot may have blocked
-  the current TLS profile. Change the **TLS profile** (`impersonate`) option to
-  another curl_cffi browser (e.g. `safari18_0`, `chrome131`) and reload.
-- **Reauthentication prompt** — the refresh token expired. Open the prompt and
-  enter a fresh SMS code.
-- **No marketplace data on a linked number** — expected: the marketplace is
-  master-only on tested accounts (see [Options](#options)).
-- **Filing an issue** — enable debug logging and attach the integration's
-  redacted diagnostics (**device → ⋮ → Download diagnostics**):
+Все сервисы по лотам действуют на номер, определяемый через `device_id`
+(на основном номере — по умолчанию; на привязанном — только если у него
+включена опция **Маркет на привязанных номерах**, см. [Опции](#опции)).
+`traffic_type` — один из `voice` / `data` / `sms`.
+
+### Создание лота — `tele2.create_lot`
+
+Создаёт один лот на продажу.
+
+- `traffic_type` (обязателен) — тип трафика: `voice`, `data` или `sms`.
+- `value` (обязателен) — объём лота: минуты для `voice`, гигабайты для
+  `data`, штуки для `sms`.
+- `amount` (обязателен) — цена лота в рублях.
+- `emojis` (опционально) — `None` (без эмодзи, по умолчанию), `random`
+  (случайные) или явный список из доступных: `cat`, `scream`, `bomb`, `rich`,
+  `zipped`, `tongue`, `cool`, `devil`.
+
+Возвращает `{"lot_id": "..."}` — id нового лота, нужен для `patch_lot`,
+`premium_lot`, `undercut_lot`, `delete_lot`.
+
+### Массовое создание — `tele2.create_lots`
+
+То же самое, но сразу пачкой: один `traffic_type` и одна цена `amount` на
+все лоты, а `volumes` — список объёмов, например `[50, 30, 20]` создаст три
+лота по 50/30/20 (ГБ, минут или SMS — зависит от `traffic_type`), у каждого
+цена `amount`. `emojis` работает так же, как в `create_lot`. Возвращает
+`{"created": [...], "failed": N, "errors": [...]}` — список успешно
+созданных лотов и ошибки по тем объёмам, которые создать не удалось (один
+неудачный лот не прерывает создание остальных).
+
+### Изменение цены — `tele2.patch_lot`
+
+Меняет `amount` (цену в рублях) у уже существующего лота по его `lot_id`.
+Не влияет на позицию в выдаче — для этого нужен `premium_lot`.
+
+### Поднятие лота — `tele2.premium_lot` / `tele2.premium_all_lots`
+
+«Ракета» — платное поднятие лота в топ выдачи Маркета, стоит **5 ₽** за
+поднятие. `premium_lot` поднимает один лот по `lot_id`; `premium_all_lots`
+поднимает сразу все активные лоты (опционально только лоты с заданным
+`traffic_type`) и возвращает сводку `{"boosted": N, "failed": N, "errors": [{"lot_id", "error"}, ...]}`
+— ошибка по одному лоту не прерывает поднятие остальных.
+
+Сенсор «Активные лоты» показывает для каждого лота его текущую `position`
+(позицию в выдаче) и аналитику выгодности поднятия — `cost_per_hour` и
+`profitable_hours`. Они считаются из опций **Интервал поднятия** и
+**Стоимость поднятия**: `cost_per_hour = (60 / интервал_поднятия) × стоимость_поднятия`,
+`profitable_hours = цена_лота / cost_per_hour` — то есть сколько часов
+поднятие лота остаётся дешевле, чем недополученная за это время выручка от
+его продажи. Именно на этих двух полях строятся blueprints, держащие лот в
+топе (см. [Blueprints](#blueprints-автоматизации)).
+
+### Демпинг — `tele2.undercut_lot` / `tele2.undercut_all_lots`
+
+Автоматически снижает цену лота чуть ниже самого дешёвого конкурента с тем
+же `traffic_type` и объёмом (`value`). `step` — на сколько рублей ниже
+конкурента ставить цену (по умолчанию 1), `min_amount` — цена, ниже которой
+демпинг не опустится, даже если конкурент дешевле (по умолчанию 1 ₽).
+`undercut_lot` работает с одним лотом по `lot_id` и возвращает результат
+изменения (с добавленным `lot_id`); `undercut_all_lots` проходит по всем
+активным лотам (опционально только с заданным `traffic_type`) и возвращает
+`{"changed": N, "results": [...]}`, где `changed` — число лотов, у которых
+цена действительно была снижена (лоты, уже дешевле всех конкурентов, не
+трогаются).
+
+### Удаление — `tele2.delete_lot` / `tele2.delete_all_lots`
+
+Снимает лот(ы) с продажи. `delete_lot` — один лот по `lot_id`;
+`delete_all_lots` — все активные лоты, опционально только с заданным
+`traffic_type`.
+
+## Привязанные номера (мультиномер)
+
+Если к основному номеру привязаны другие номера (t2 «Управление номерами»),
+достаточно добавить основной: интеграция найдёт остальные через тот же
+токен аккаунта и создаст по **отдельному устройству на каждый номер**, а
+привязанные номера будут вложены в основной (`via_device`). У каждого номера
+свои сенсоры баланса / пакета / тарифа / статуса SIM; сенсор «Привязанные
+номера» есть только на основном.
+
+Чтобы применить сервис к конкретному номеру, укажите **устройство** этого
+номера при вызове (например, `tele2.set_status` на устройстве привязанного
+номера заблокирует именно его SIM). Номера, привязанные позже, появятся
+после перезагрузки интеграции.
+
+## Blueprints (автоматизации)
+
+Импортируются через **Настройки → Автоматизации и сценарии → Blueprints →
+Импортировать Blueprint**.
+
+- `blueprints/automation/tele2/auto_hold_lot.yaml` — держать **один** лот в
+  топе: проверяет его `position` через сенсор «Активные лоты» и вызывает
+  `tele2.premium_lot`, когда позиция опускается ниже заданного порога.
+- `blueprints/automation/tele2/auto_hold_all_lots.yaml` — держать **все**
+  лоты в топе: вызывает `tele2.premium_all_lots` каждые N минут в выбранные
+  вами активные часы.
+- `blueprints/automation/tele2/auto_undercut.yaml` — **авто-демпинг**:
+  вызывает `tele2.undercut_all_lots` по расписанию, чтобы цены лотов всегда
+  были чуть ниже конкурентов (с учётом минимальной цены).
+
+> [!NOTE]
+> Активные часы в blueprints используют часовой пояс самого Home Assistant —
+> выставьте `TZ=Europe/Moscow` (в поставляемом `docker-compose.yml` это уже
+> сделано), чтобы ориентироваться на московское время.
+
+## Диагностика проблем
+
+- **Запросы стали отваливаться / блокироваться** — анти-бот t2 мог
+  заблокировать текущий TLS-профиль. Смените опцию **TLS-профиль**
+  (`impersonate`) на другой браузер curl_cffi (например, `safari18_0`,
+  `chrome131`) и перезагрузите интеграцию.
+- **Запрос на повторную авторизацию** — истёк refresh-токен. Откройте запрос
+  и введите свежий код из SMS.
+- **Нет данных Маркета на привязанном номере** — это ожидаемо: на
+  проверенных аккаунтах Маркет работает только на основном номере (см.
+  [Опции](#опции)).
+- **Оформление issue** — включите debug-логирование и приложите
+  маскированную диагностику интеграции (**устройство → ⋮ → Скачать
+  диагностику**):
 
   ```yaml
   # configuration.yaml
@@ -227,13 +322,14 @@ Import via **Settings → Automations & Scenes → Blueprints → Import Bluepri
       custom_components.tele2: debug
   ```
 
-## Disclaimer
+## Дисклеймер
 
-This is an **unofficial** integration built on a reverse-engineered t2 API. It
-is not affiliated with, endorsed by, or supported by t2 / Tele2. The API may
-change or block automated access at any time. Use at your own risk; you are
-responsible for complying with t2's terms of service.
+Это **неофициальная** интеграция, построенная на реверс-инжиниринге API t2.
+Она не аффилирована с t2 / Tele2, не одобрена и не поддерживается ими. API
+может измениться или заблокировать автоматический доступ в любой момент.
+Используйте на свой риск — ответственность за соблюдение условий
+использования t2 лежит на вас.
 
-## Credits
+## Благодарности
 
-Powered by [`tele2api`](https://github.com/Muxee4ka/tele2api).
+Работает на базе [`tele2api`](https://github.com/Muxee4ka/tele2api).
