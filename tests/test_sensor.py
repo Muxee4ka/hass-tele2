@@ -112,6 +112,44 @@ async def test_package_renewal_sensor(hass: HomeAssistant, patch_api):
     assert state.state == "2026-06-30T20:59:59+00:00"
 
 
+async def test_abonent_fee_prefers_tariff_cost(hass: HomeAssistant, patch_api):
+    """Before billing, the discounted tariffCost beats the list price (issue #1)."""
+    patch_api.get_tariff.return_value = {
+        "frontName": "Мой онлайн+",
+        "currentAbonentFee": {"amount": 850.0, "currency": "RUB"},
+    }
+    patch_api.get_charges.return_value = []
+    patch_api.get_rests_detailed.return_value = [
+        {"type": "service", "uom": "mb", "remain": 1,
+         "tariffCost": {"amount": 1.0, "currency": "RUB"}},
+        {"type": "tariff", "uom": "min", "remain": 600,
+         "tariffCost": {"amount": 540.0, "currency": "RUB"}},
+    ]
+    await _setup(hass, patch_api)
+    state = _state(hass, "abonent_fee")
+    assert state.state == "540.0"
+    assert state.attributes["base_fee"] == 850.0
+
+
+async def test_package_renewal_prefers_renew_date(hass: HomeAssistant, patch_api):
+    """service.renewDate (exact charge moment) wins over endDay; a package
+    without renewDate still falls back to its endDay."""
+    patch_api.get_rests_detailed.return_value = [
+        {"type": "tariff", "uom": "min", "remain": 600,
+         "endDay": "2026-09-25T23:59:59.000+0300",
+         "service": {"renewDate": "2026-09-26T00:00:00.000+0300"}},
+        {"type": "tariff", "uom": "mb", "remain": 30720,
+         "endDay": "2026-09-27T23:59:59.000+0300", "service": {}},
+    ]
+    await _setup(hass, patch_api)
+    state = _state(hass, "package_renewal")
+    assert state.state == "2026-09-25T21:00:00+00:00"
+    assert state.attributes["packages"][0]["renewDate"] == (
+        "2026-09-26T00:00:00.000+0300"
+    )
+    assert state.attributes["packages"][1]["renewDate"] is None
+
+
 async def test_linked_numbers_sensor(hass: HomeAssistant, patch_api):
     patch_api.get_slaves.return_value = [
         {"msisdn": "79001112233", "state": "active"},

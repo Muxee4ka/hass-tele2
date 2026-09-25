@@ -127,38 +127,67 @@ def _base_fee(tariff: dict) -> Any:
     return _money(tariff.get("currentAbonentFee") or tariff.get("abonentFee"))
 
 
-def _abonent_fee(data: SubscriberData) -> Any:
-    """Actual subscription fee paid this month (reflects personal discounts).
+def _tariff_cost(rests_detailed: list) -> Any:
+    """Final (discounted) tariff price carried on the tariff package items."""
+    for item in rests_detailed:
+        if not isinstance(item, dict) or item.get("type") != "tariff":
+            continue
+        cost = _money(item.get("tariffCost"))
+        if cost is not None:
+            return cost
+    return None
 
-    t2's tariff exposes only the list price; the real, discounted fee shows up
-    as the ``SUBSCRIPTION_FEE`` charge. Fall back to the list price before it is
-    billed for the current month.
+
+def _abonent_fee(data: SubscriberData) -> Any:
+    """Subscription fee actually charged (reflects personal discounts).
+
+    t2's tariff exposes only the list price. The real price is the
+    ``tariffCost`` of the tariff packages (known before billing), then the
+    ``SUBSCRIPTION_FEE`` charge once billed; the list price is the last resort.
     """
+    cost = _tariff_cost(data.rests_detailed)
+    if cost is not None:
+        return cost
     for charge in data.charges:
         if isinstance(charge, dict) and charge.get("type") == "SUBSCRIPTION_FEE":
             return _money(charge.get("amount"))
     return _base_fee(data.tariff)
 
 
+def _renew_date(item: dict) -> str | None:
+    service = item.get("service")
+    return service.get("renewDate") if isinstance(service, dict) else None
+
+
 def _package_renewal(rests_detailed: list) -> datetime | None:
-    """Earliest end-day among tariff packages (when the package renews)."""
+    """Earliest renewal among tariff packages (when the fee is charged).
+
+    Prefers ``service.renewDate`` (the exact charge moment); ``endDay`` is
+    23:59:59 of the day before, used only when ``renewDate`` is missing.
+    """
     dates: list[datetime] = []
     for item in rests_detailed:
         if not isinstance(item, dict) or item.get("type") != "tariff":
             continue
-        end_day = item.get("endDay")
-        if not end_day:
-            continue
-        try:
-            dates.append(datetime.fromisoformat(end_day))
-        except (ValueError, TypeError):
-            continue
+        for raw in (_renew_date(item), item.get("endDay")):
+            if not raw:
+                continue
+            try:
+                dates.append(datetime.fromisoformat(raw))
+                break
+            except (ValueError, TypeError):
+                continue
     return min(dates) if dates else None
 
 
 def _tariff_packages(rests_detailed: list) -> list[dict]:
     return [
-        {"uom": i.get("uom"), "remain": i.get("remain"), "endDay": i.get("endDay")}
+        {
+            "uom": i.get("uom"),
+            "remain": i.get("remain"),
+            "endDay": i.get("endDay"),
+            "renewDate": _renew_date(i),
+        }
         for i in rests_detailed
         if isinstance(i, dict) and i.get("type") == "tariff"
     ]
